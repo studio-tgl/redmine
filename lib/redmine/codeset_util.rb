@@ -85,7 +85,7 @@ module Redmine
       if str.respond_to?(:force_encoding)
         str.force_encoding('UTF-8')
       end
-      str
+      str = self.expand(str)
     end
 
     def self.to_utf8_by_setting_internal(str)
@@ -111,6 +111,29 @@ module Redmine
         str.force_encoding('UTF-8')
       end
       str
+    end
+
+    # Expand tabs to spaces
+    def self.expand(text, tab_width=4)
+      out = ''
+      text.each_line do |line|
+        column = 0
+        line.each_char do |c|
+          if c == "\t"
+            next_tab_column = column + (tab_width - column % tab_width)
+            while column < next_tab_column
+              out << " "
+              column += 1
+            end
+          elsif c == "\b"
+            column += -1
+          else
+            column += 1
+            out << c
+          end
+        end
+      end
+      out
     end
 
     def self.from_utf8(str, encoding)
